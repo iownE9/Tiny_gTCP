@@ -1,6 +1,6 @@
 # gTCP
 
-基于 aceld/zinx 改编重写的轻量级TCP框架
+基于 aceld/zinx 重构的轻量级TCP框架
 
 由衷感谢 无崖子 刘丹冰 老师 😘
 
@@ -18,3 +18,13 @@
 实现简单的 TCP 连接请求处理并 echo 内容的并发服务器  
 
 ![gTCP v1 逻辑图](./static/images/v1.png)
+
+## v2
+
+消息封装 -> TLV -> 粘包问题
+
+<https://upload-images.jianshu.io/upload_images/16626678-ef4a860d25c505ba.png?imageMogr2/auto-orient/strip|imageView2/2/format/webp>
+
+<https://blog.csdn.net/Ternence_zq/article/details/105757272>
+
+单元测试有bug, 无法自动退出

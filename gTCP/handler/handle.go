@@ -1,12 +1,52 @@
 package handler
 
 import (
+	"gTCP/api"
+	"gTCP/bean"
 	"io"
 	"log"
 	"net"
 )
 
-// Echo 回写
+// 对TLV消息回写 v2
+func HandlerEchoTLVMsg(conn *net.TCPConn) {
+	defer conn.Close()
+	// TLV 拆包装包 句柄
+	var dp api.GDataPack = bean.DataPack()
+
+	for {
+		// 读 msg
+		getMsg, err := dp.Unpack(conn)
+		if err == io.EOF {
+			log.Println("conn is closed: EOF")
+			return
+		}
+		if err != nil {
+			log.Println("handlerEchoMsg continue")
+			continue
+		}
+
+		// 处理 msg
+		log.Println("server receive:", getMsg.GetTag(), string(getMsg.GetValue()))
+
+		// 打包 msg
+		sedMsg, err := dp.Pack(getMsg)
+		if err != nil {
+			log.Println("handlerEchoMsg continue")
+			continue
+		}
+
+		// 发送 msg
+		if _, err := conn.Write(sedMsg); err != nil {
+			log.Println("conn.Write(sedMsg) err", err)
+			return
+		}
+
+		log.Println("server echo msg ok")
+	}
+}
+
+// Echo 回写 v1
 func Echo(conn *net.TCPConn) {
 	defer conn.Close()
 

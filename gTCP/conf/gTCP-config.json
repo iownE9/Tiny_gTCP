@@ -1,7 +1,9 @@
 {
-    "Name":"gTCP server",
+    "Name":"Tiny_gTCP server",
     "IpVersion":"tcp4",
     "Host":"localhost",
     "TcpPort":"8080",
-    "LogPath":"../static/log/log_v1.txt"
+    "LogPath":"../static/log/log_v2.txt",
+    "HeadLen":8,
+    "ChanCap":3
 }

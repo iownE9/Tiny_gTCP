@@ -9,6 +9,8 @@ import (
 var GlobalConfig *globalConfig
 
 type globalConfig struct {
+	HeadLen   uint32 // TLV 消息封装 头长度
+	ChanCap   uint8  // channel 容量
 	Name      string
 	IpVersion string
 	Host      string

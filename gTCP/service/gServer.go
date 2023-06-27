@@ -2,7 +2,7 @@ package service
 
 import (
 	"gTCP/handler"
-	"gTCP/utils" // 使用 init()
+	"gTCP/utils"
 	"log"
 	"net"
 )
@@ -43,7 +43,7 @@ func (s *GServer) ListenAndServe() error {
 		}
 
 		// 处理连接
-		go handler.Echo(conn)
+		go handler.HandlerEchoTLVMsg(conn)
 	}
 }
 

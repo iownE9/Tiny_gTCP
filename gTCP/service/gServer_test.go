@@ -3,6 +3,7 @@ package service
 import (
 	"gTCP/client"
 	"log"
+	"sync"
 	"testing"
 	"time"
 )
@@ -18,11 +19,18 @@ func TestGServer(t *testing.T) {
 
 	time.Sleep(100 * time.Millisecond) // 有必要
 
+	var wg sync.WaitGroup
 	// 开启客户端测试
 	for i := 0; i < num; i++ {
-		go client.ClientTLVTest()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			client.ClientTLVTest()
+		}()
 	}
 
-	// 主动退出
-	time.Sleep(3 * time.Second)
+	// 等待退出
+	wg.Wait()
+	time.Sleep(100 * time.Millisecond)
+
 }

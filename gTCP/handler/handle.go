@@ -8,6 +8,26 @@ import (
 	"net"
 )
 
+// 处理 connfd V3
+func HandlerCurr(conn *net.TCPConn) {
+	fd := bean.Clientfd(conn)
+
+	// 读 msg
+	go fd.ReadMsg()
+
+	// 处理 msg
+	go fd.HandleMsg()
+
+	// 打包 msg
+	go fd.PackMsg()
+
+	// 发送 msg
+	go fd.SendMsg()
+
+	// 连接关闭
+	go fd.Closefd()
+}
+
 // 对TLV消息回写 v2
 func HandlerEchoTLVMsg(conn *net.TCPConn) {
 	defer conn.Close()

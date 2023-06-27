@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"time"
 )
 
 const sendData1 string = "hello gTCP v1"
@@ -53,54 +54,75 @@ func ClientTLVTest() {
 		conn: conn,
 		send: make(chan []byte, chanCap),
 		read: make(chan api.GMessage, chanCap),
-		exit: make(chan struct{}),
+		// 容量 >=2， 读写都有权限通知关闭 connfd
+		exit: make(chan struct{}, chanCap),
 	}
 
-	fd.send <- sendData // 必须有缓存，不然就一直阻塞
+	go func() { fd.send <- sendData }() // 缓存有无均可
 
+	go func() {
+		// 模拟测试 v2 的 一直阻塞在 read 的 bug
+		time.Sleep(1 * time.Second)
+		select {
+		case <-fd.exit:
+			// 若已经关闭，直接退出
+		default:
+			fd.send <- sendData
+		}
+
+		time.Sleep(1 * time.Second)
+		fd.exit <- struct{}{}
+	}()
+
+	// 接收消息
+	go fd.readMsg()
 	// 处理消息
 	go fd.handleMsg()
+	// 发送消息
+	go fd.sendMsg()
+
+	// 一直阻塞直到连接关闭
+	select {
+	case <-fd.exit:
+		fd.conn.Close() // 关闭 serverfd
+
+		// 该 goroutine 为 fd.send 发送方
+		// 消耗掉未发送的 msg
+		close(fd.send)
+		for range fd.send {
+		}
+	}
+}
+
+// 发送消息
+func (fd *serverfd) sendMsg() {
+	for sendData := range fd.send {
+		_, err := fd.conn.Write(sendData)
+		if err != nil {
+			log.Println("INFO: conn.Write err", err)
+			fd.exit <- struct{}{}
+			return
+		}
+	}
+}
+
+// 接收消息
+func (fd *serverfd) readMsg() {
+	defer close(fd.read) // 关闭 fd.handleMsg() 协程
 
 	for {
-		// fd 限制在一个 goroutine 内，虽然它本身就并发安全
-		select {
-		// 连接关闭
-		case <-fd.exit:
-			fd.conn.Close() // 关闭 serverfd
-			close(fd.read)  // 关闭 fd.handleMsg() 协程
+		revMsg, err := dp.Unpack(fd.conn)
 
-			// 消耗掉未发送的
-			close(fd.send)
-			for range fd.send {
-			}
-
-			return // 退出 clientTest
-
-		// 发送消息
-		case sendData := <-fd.send:
-			_, err := fd.conn.Write(sendData)
-			if err != nil {
-				log.Println("conn.Write err", err)
-				close(fd.exit)
-			}
-
-		// 接收消息
-		default:
-			// bug: 若无回复内容就会一直阻塞
-			// 需确保 fd.send <- sendData 先运行 故：
-			// go func() { fd.send <- sendData }() // Error
-			revMsg, err := dp.Unpack(fd.conn)
-			if err != nil {
-				if err == io.EOF {
-					log.Println("sever conn is EOF")
-				} else {
-					log.Println("Unpack err", err)
-				}
-				close(fd.exit)
+		if err != nil {
+			if err == io.EOF {
+				log.Println("INFO: sever conn is EOF")
 			} else {
-				fd.read <- revMsg
+				log.Println("ERROR: Unpack err", err)
 			}
+			fd.exit <- struct{}{}
+			return
 		}
+		fd.read <- revMsg
 	}
 }
 
@@ -112,11 +134,11 @@ func (fd *serverfd) handleMsg() {
 		switch tag {
 		case 1:
 			if sendData1 != got {
-				log.Println("ERROR: want", sendData1, "but got", got)
+				log.Println("ERROR: tag 1 want", sendData1, "but got", got)
 			}
 		case 2:
 			if sendData2 != got {
-				log.Println("ERROR: want", sendData1, "but got", got)
+				log.Println("ERROR: tag 2 want", sendData2, "but got", got)
 			}
 		default:
 			log.Println("ERROR: got message tag err", tag)
@@ -126,7 +148,8 @@ func (fd *serverfd) handleMsg() {
 
 // 模拟粘包数据 TLV 打包
 func msgTLV() []byte {
-	sendMsg, err := dp.Pack(bean.NewMessage(1, []byte(sendData1)))
+	// 配合 (fd *clientfd) PackMsg() 打包回复 tag 设 2
+	sendMsg, err := dp.Pack(bean.NewMessage(2, []byte(sendData2)))
 	if err != nil {
 		log.Println("dp.Pack sendMsg err")
 		return nil

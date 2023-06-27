@@ -43,7 +43,7 @@ func (s *GServer) ListenAndServe() error {
 		}
 
 		// 处理连接
-		go handler.HandlerEchoTLVMsg(conn)
+		go handler.HandlerCurr(conn)
 	}
 }
 

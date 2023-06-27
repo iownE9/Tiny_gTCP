@@ -28,3 +28,25 @@
 <https://blog.csdn.net/Ternence_zq/article/details/105757272>
 
 单元测试有bug, 无法自动退出
+
+深入理解 io.Reader 接口 <https://juejin.cn/post/7118633163022139399>
+
+## v3
+
+服务器 对 clientfd 的多个 msg 读写分离 并发处理
+
+除 main 结束 或 exit() 外，不能显示退出协程 -> 如何避免内存泄漏，且同步退出子协程
+
+同步协程：
+1. sync.WaitGroup 计数等待
+2. channel 关闭 且 确保读完（只许发送方关闭channel）
+
+修补单元测试
+
+### ERROR 日志分析
+
+测试客户端主动关闭连接后，其子协程 readMsg() 在读操作中：
+
+ERROR: use of closed network connection
+
+为正常日志

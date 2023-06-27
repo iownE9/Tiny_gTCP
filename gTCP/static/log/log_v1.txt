@@ -1,0 +1,39 @@
+2023/06/27 22:07:31.866719 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:12: log file init ok
+2023/06/27 22:07:31.866791 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:14: global init ok
+2023/06/27 22:07:31.867061 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer.go:19: [gTCP v1 echoTest] listenner at IP: localhost, Port: 8080, is starting
+2023/06/27 22:07:31.867384 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer.go:35: start gTCP v1 echoTest server succ, listenning...
+2023/06/27 22:07:31.967572 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 1 ... start
+2023/06/27 22:07:31.967632 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 8 ... start
+2023/06/27 22:07:31.967777 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 2 ... start
+2023/06/27 22:07:31.967788 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 0 ... start
+2023/06/27 22:07:31.967849 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 3 ... start
+2023/06/27 22:07:31.967893 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 4 ... start
+2023/06/27 22:07:31.967937 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 5 ... start
+2023/06/27 22:07:31.968000 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 6 ... start
+2023/06/27 22:07:31.968043 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer_test.go:43: Client Test 7 ... start
+2023/06/27 22:07:31.968160 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968180 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968186 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968195 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968201 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968190 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968206 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968233 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968254 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968255 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968265 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968280 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968297 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968308 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968297 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968320 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968329 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:26: server receive: hello gTCP v1
+2023/06/27 22:07:31.968339 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:33: server echo ok
+2023/06/27 22:07:31.968367 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968393 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968396 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968392 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968419 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968447 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968465 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF
+2023/06/27 22:07:31.968483 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/handle.go:19: clientfd is closed: EOF

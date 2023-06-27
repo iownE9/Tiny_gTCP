@@ -1,0 +1,7 @@
+{
+    "Name":"gTCP server",
+    "IpVersion":"tcp4",
+    "Host":"localhost",
+    "TcpPort":"8080",
+    "LogPath":"../static/log/log_v1.txt"
+}

@@ -2,20 +2,19 @@ package bean
 
 import (
 	"gTCP/api"
+	"gTCP/router"
 	"gTCP/utils"
 	"io"
 	"log"
-	"math/rand"
 	"net"
 	"sync"
-	"time"
 )
 
-// v3 服务器 对 clientfd 的多个 msg 读写分离 并发处理
+// v4 服务器 对 clientfd 的多个 msg 读写分离 并发处理
 type clientfd struct {
 	conn net.Conn
 	read chan api.GMessage
-	pack chan []byte
+	pack chan api.GMessage
 	send chan []byte
 	exit chan struct{}
 }
@@ -27,7 +26,7 @@ func Clientfd(conn *net.TCPConn) api.GConnfd {
 	fd := &clientfd{
 		conn: conn,
 		read: make(chan api.GMessage, chanCap),
-		pack: make(chan []byte, chanCap),
+		pack: make(chan api.GMessage, chanCap),
 		send: make(chan []byte, chanCap),
 		// 容量为 >=2， 读写都有权限通知关闭 connfd
 		exit: make(chan struct{}, chanCap),
@@ -64,22 +63,18 @@ func (fd *clientfd) HandleMsg() {
 		go func(msg api.GMessage) {
 			defer wg.Done()
 
-			// 模拟处理操作消耗时间
-			time.Sleep(time.Duration(rand.Intn(100)+1) * time.Millisecond)
-			// echo 回写
-			fd.pack <- msg.GetValue()
-
+			sendMsg := router.GRouter.HandlerTagMsg(msg)
+			if sendMsg == nil {
+				log.Println("ERROR: HandlerTagMsg(msg) is nil")
+			} else {
+				fd.pack <- sendMsg
+			}
 		}(msg)
 	}
 	wg.Wait() // 防止 fd.pack 关闭后 还向它发送
-	//
-	// close(fd.pack) // 关闭 fd.packMsg 协程
-	// // 消耗掉未打包的 resp
-	// for range fd.pack {
-	// }
 }
 
-// 打包回复 tag 设 2
+// 打包回复
 func (fd *clientfd) PackMsg() {
 	defer close(fd.send) // 关闭 fd.sendMsg 协程
 
@@ -87,13 +82,11 @@ func (fd *clientfd) PackMsg() {
 	dp := DataPack()
 	for resp := range fd.pack {
 		wg.Add(1)
-		go func(resp []byte) {
+		go func(resp api.GMessage) {
 			defer wg.Done()
-
-			sendMsg := NewMessage(2, []byte(resp))
-			sendData, err := dp.Pack(sendMsg)
+			sendData, err := dp.Pack(resp)
 			if err != nil {
-				log.Println("ERROR: msg.Pack(sendMsg) err")
+				log.Println("ERROR: PackMsg() err")
 			} else {
 				fd.send <- sendData
 			}
@@ -124,6 +117,7 @@ func (fd *clientfd) Closefd() {
 	select {
 	case <-fd.exit:
 		fd.conn.Close() // 关闭 clientfd
-		close(fd.exit)
+		// close(fd.exit) // ERROR
+		// 让 容量  去存放 ReadMsg ReadMsg 中慢的一方
 	}
 }

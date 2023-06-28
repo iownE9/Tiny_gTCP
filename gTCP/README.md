@@ -50,3 +50,18 @@
 ERROR: use of closed network connection
 
 为正常日志
+
+## v4
+
+路由分发
+
+根据 tag 调用相应 HandlerFunc
+
+参考 http.NewServeMux() 的设计
+
+修补潜在bug 
+
+1. gTCP/client/clientTest.go
+2. gTCP/api/gConnfd -> goClosefd()
+
+规范 ERROR INFO 等日志输出

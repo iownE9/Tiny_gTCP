@@ -10,9 +10,6 @@ import (
 	"time"
 )
 
-const sendData1 string = "hello gTCP v1"
-const sendData2 string = "hello gTCP v2"
-
 // 对应连接对象
 type serverfd struct {
 	conn net.Conn          // serverfd 文件描述符
@@ -23,23 +20,25 @@ type serverfd struct {
 
 // TLV 拆包装包 句柄
 var dp api.GDataPack
-var chanCap uint8 // channel 容量
+var chanCap uint8       // channel 容量
+var msgs []api.GMessage // 发送消息
 
 // 初始化 client 包 全局只读变量
 func init() {
 	dp = bean.DataPack()
 	chanCap = utils.GlobalConfig.ChanCap
+	msgs = []api.GMessage{
+		bean.NewMessage(1, []byte("hello gTCP v1")),
+		bean.NewMessage(2, []byte("hello gTCP v2")),
+		bean.NewMessage(3, []byte("hello gTCP v3")),
+		bean.NewMessage(4, []byte("hello gTCP v4")),
+		bean.NewMessage(5, []byte("hello gTCP v5")),
+	}
 	log.Println("ClientTest Init ok")
 }
 
 // 模拟 client TLV 格式消息发送
 func ClientTLVTest() {
-	// 模拟粘包数据
-	sendData := msgTLV()
-	if sendData == nil {
-		log.Println("ERROR: msgTLV() err")
-		return
-	}
 
 	// 与服务器建立连接
 	conn, err := net.Dial("tcp", "127.0.0.1:8080")
@@ -58,51 +57,37 @@ func ClientTLVTest() {
 		exit: make(chan struct{}, chanCap),
 	}
 
-	go func() { fd.send <- sendData }() // 缓存有无均可
+	// 打包消息
+	go fd.msgTLVpack()
 
 	go func() {
-		// 模拟测试 v2 的 一直阻塞在 read 的 bug
 		time.Sleep(1 * time.Second)
 		select {
 		case <-fd.exit:
 			// 若已经关闭，直接退出
 		default:
-			fd.send <- sendData
+			fd.msgTLVpack()
 		}
 
 		time.Sleep(1 * time.Second)
+		// 主动结束
 		fd.exit <- struct{}{}
 	}()
 
-	// 接收消息
-	go fd.readMsg()
-	// 处理消息
-	go fd.handleMsg()
 	// 发送消息
 	go fd.sendMsg()
+
+	// 接收消息
+	go fd.readMsg()
+
+	// 处理消息
+	go fd.handleMsg()
 
 	// 一直阻塞直到连接关闭
 	select {
 	case <-fd.exit:
 		fd.conn.Close() // 关闭 serverfd
-
-		// 该 goroutine 为 fd.send 发送方
-		// 消耗掉未发送的 msg
-		close(fd.send)
-		for range fd.send {
-		}
-	}
-}
-
-// 发送消息
-func (fd *serverfd) sendMsg() {
-	for sendData := range fd.send {
-		_, err := fd.conn.Write(sendData)
-		if err != nil {
-			log.Println("INFO: conn.Write err", err)
-			fd.exit <- struct{}{}
-			return
-		}
+		return
 	}
 }
 
@@ -131,34 +116,40 @@ func (fd *serverfd) handleMsg() {
 	for msg := range fd.read {
 		got := string(msg.GetValue())
 		tag := msg.GetTag()
-		switch tag {
-		case 1:
-			if sendData1 != got {
-				log.Println("ERROR: tag 1 want", sendData1, "but got", got)
-			}
-		case 2:
-			if sendData2 != got {
-				log.Println("ERROR: tag 2 want", sendData2, "but got", got)
-			}
-		default:
-			log.Println("ERROR: got message tag err", tag)
+		want := string(msgs[tag-1].GetValue())
+		if want != got {
+			log.Println("ERROR: tag", tag, "want", want, ",but got", got)
 		}
 	}
 }
 
 // 模拟粘包数据 TLV 打包
-func msgTLV() []byte {
-	// 配合 (fd *clientfd) PackMsg() 打包回复 tag 设 2
-	sendMsg, err := dp.Pack(bean.NewMessage(2, []byte(sendData2)))
-	if err != nil {
-		log.Println("dp.Pack sendMsg err")
-		return nil
+func (fd *serverfd) msgTLVpack() {
+	for _, msg := range msgs {
+		go func(msg api.GMessage) {
+			sendData, err := dp.Pack(msg)
+			if err != nil {
+				log.Println("ERROR: msgTLVpack() err")
+			} else {
+				fd.send <- sendData
+			}
+		}(msg)
 	}
-	sendMsg2, err := dp.Pack(bean.NewMessage(2, []byte(sendData2)))
-	if err != nil {
-		log.Println("dp.Pack sendMsg2 err")
-		return nil
+}
+
+// 发送消息
+func (fd *serverfd) sendMsg() {
+	for sendData := range fd.send {
+		_, err := fd.conn.Write(sendData)
+		if err != nil {
+			log.Println("INFO: conn.Write err", err)
+			fd.exit <- struct{}{}
+			break
+		}
 	}
-	// 俩个消息粘在一起
-	return append(sendMsg, sendMsg2...)
+
+	// 消耗掉未发送的数据，防止泄露
+	for range fd.send {
+		// 连接已关闭
+	}
 }

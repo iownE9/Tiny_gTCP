@@ -1,0 +1,37 @@
+2023/06/28 10:39:07.351926 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:12: log file init ok
+2023/06/28 10:39:07.351983 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:14: global init ok
+2023/06/28 10:39:07.352066 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:37: ClientTest Init ok
+2023/06/28 10:39:07.352293 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer.go:19: [gTCP v4 并发] listenner at IP: localhost, Port: 8080, is starting
+2023/06/28 10:39:07.352520 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/service/gServer.go:35: start gTCP v4 并发 server succ, listenning...
+2023/06/28 10:39:09.455084 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52052->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455109 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52052->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455131 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52056->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455154 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52056->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455168 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52046->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455177 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52046->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455205 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52054->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455213 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52054->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455215 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52096->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455241 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52096->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455255 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52068->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455262 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52068->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455269 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52080->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455279 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52080->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455143 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error read tcp 127.0.0.1:52038->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455296 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/client/clientTest.go:105: ERROR: Unpack err read tcp 127.0.0.1:52038->127.0.0.1:8080: use of closed network connection
+2023/06/28 10:39:09.455294 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455323 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455328 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455348 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455353 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455369 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455377 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455374 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455391 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455341 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455442 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455361 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455452 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455320 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gDataPack.go:55: read msg head error EOF
+2023/06/28 10:39:09.455478 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF
+2023/06/28 10:39:09.455348 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/bean/gConnfd.go:45: INFO: conn is EOF

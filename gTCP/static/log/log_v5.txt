@@ -1,0 +1,9 @@
+2023/06/29 21:01:50.357066 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:12: log file init ok
+2023/06/29 21:01:50.357143 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:14: global init ok
+2023/06/29 21:01:50.357160 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/router/gRouter.go:32: GRouter init ok
+2023/06/29 21:01:50.561171 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/msg/gDataPack.go:55: read msg head error EOF
+2023/06/29 21:01:50.561173 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/msg/gDataPack.go:55: read msg head error EOF
+2023/06/29 21:01:50.561256 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/ghandleConnfd.go:58: INFO: conn is EOF
+2023/06/29 21:01:50.561219 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/ghandleConnfd.go:58: INFO: conn is EOF
+2023/06/29 21:01:50.562717 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/msg/gDataPack.go:55: read msg head error EOF
+2023/06/29 21:01:50.562741 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/handler/ghandleConnfd.go:58: INFO: conn is EOF

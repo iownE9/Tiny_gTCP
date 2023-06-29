@@ -1,3 +1,0 @@
-2023/06/28 02:09:36.065422 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:12: log file init ok
-2023/06/28 02:09:36.065457 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/utils/utils.go:14: global init ok
-2023/06/28 02:09:36.065543 /home/steve/go_proj/gTCP/Tiny_gTCP/gTCP/router/gRouter.go:32: GRouter init ok

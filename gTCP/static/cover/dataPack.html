@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>msg: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gTCP/msg/gDataPack.go (54.8%)</option>
+				
+				<option value="file1">gTCP/msg/gMessage.go (57.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package msg
+
+import (
+        "bytes"
+        "encoding/binary"
+        "gTCP/api"
+        "gTCP/utils"
+        "io"
+        "log"
+)
+
+type gDataPack struct{}
+
+func DataPack() api.GDataPack <span class="cov8" title="1">{
+        return &amp;gDataPack{}
+}</span>
+
+// 包头长度 tag uint32(4字节) +  length uint32(4字节)
+func (dp *gDataPack) HeadLen() uint32 <span class="cov8" title="1">{
+        return utils.GlobalConfig.HeadLen
+}</span>
+
+// 封包方法(封装数据) 大端法
+func (dp *gDataPack) Pack(sendMsg api.GMessage) ([]byte, error) <span class="cov8" title="1">{
+        // 创建一个存放 bytes 字节的缓冲
+        dataBuff := bytes.NewBuffer([]byte{})
+
+        // 写 sendMsg tag
+        if err := binary.Write(dataBuff, binary.BigEndian, sendMsg.GetTag()); err != nil </span><span class="cov0" title="0">{
+                log.Println("binary.Write sendMsg tag err", err)
+                return nil, err
+        }</span>
+
+        // 写 sendMsg Length
+        <span class="cov8" title="1">if err := binary.Write(dataBuff, binary.BigEndian, sendMsg.GetLength()); err != nil </span><span class="cov0" title="0">{
+                log.Println("binary.Write data Length err", err)
+                return nil, err
+        }</span>
+
+        // 写 sendMsg value
+        <span class="cov8" title="1">if err := binary.Write(dataBuff, binary.BigEndian, sendMsg.GetValue()); err != nil </span><span class="cov0" title="0">{
+                log.Println("binary.Write data value err", err)
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return dataBuff.Bytes(), nil</span>
+}
+
+// 拆包方法,只解压 head 的信息，得到 Length 和 tag 大端法
+// func (dp *gDataPack) Unpack(conn *net.TCPConn) (api.GMessage, error) {
+func (dp *gDataPack) Unpack(conn io.Reader) (api.GMessage, error) <span class="cov8" title="1">{
+        // 读取 msg head
+        headData := make([]byte, dp.HeadLen())
+        if _, err := io.ReadFull(conn, headData); err != nil </span><span class="cov0" title="0">{
+                log.Println("read msg head error", err)
+                return nil, err
+        }</span>
+
+        // 创建一个从输入二进制数据的 ioReader
+        <span class="cov8" title="1">dataBuff := bytes.NewReader(headData)
+        msg := &amp;gMessage{}
+
+        // 解析 msg tag
+        if err := binary.Read(dataBuff, binary.BigEndian, &amp;msg.tag); err != nil </span><span class="cov0" title="0">{
+                log.Println("binary.Read msg tag err", err)
+                return nil, err
+        }</span>
+
+        // 解析 msg length
+        <span class="cov8" title="1">if err := binary.Read(dataBuff, binary.BigEndian, &amp;msg.length); err != nil </span><span class="cov0" title="0">{
+                log.Println("binary.Read msg length err", err)
+                return nil, err
+        }</span>
+
+        // 读 msg value
+        <span class="cov8" title="1">if msg.length &gt; 0 </span><span class="cov8" title="1">{
+                msg.value = make([]byte, msg.length)
+                if n, err := io.ReadFull(conn, msg.value); err != nil </span><span class="cov0" title="0">{
+                        log.Println("io.ReadFull msg data value error", err, "n =", n)
+                        return nil, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">return msg, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package msg
+
+import (
+        "gTCP/api"
+)
+
+type gMessage struct {
+        tag    uint32 // 消息的 tag
+        length uint32 // 消息的长度
+        value  []byte // 消息的内容
+}
+
+func NewMessage(tag uint32, value []byte) api.GMessage <span class="cov8" title="1">{
+        return &amp;gMessage{
+                tag:    tag,
+                length: uint32(len(value)),
+                value:  value,
+        }
+}</span>
+
+// 获取消息数据段长度 length
+func (msg *gMessage) GetLength() uint32 <span class="cov8" title="1">{
+        return msg.length
+}</span>
+
+// 获取消息 Tag
+func (msg *gMessage) GetTag() uint32 <span class="cov8" title="1">{
+        return msg.tag
+}</span>
+
+// 获取消息内容 value
+func (msg *gMessage) GetValue() []byte <span class="cov8" title="1">{
+        return msg.value
+}</span>
+
+// 设置消息 tag
+func (msg *gMessage) SetTag(tag uint32) <span class="cov0" title="0">{
+        msg.tag = tag
+}</span>
+
+// 设置消息数据段长度 length
+func (msg *gMessage) SetLength(len uint32) <span class="cov0" title="0">{
+        msg.length = len
+}</span>
+
+// 设置消息内容 value
+func (msg *gMessage) SetValue(vale []byte) <span class="cov0" title="0">{
+        msg.value = vale
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

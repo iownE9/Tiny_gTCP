@@ -1,7 +1,8 @@
-package bean
+package handler
 
 import (
 	"gTCP/api"
+	"gTCP/msg"
 	"gTCP/router"
 	"gTCP/utils"
 	"io"
@@ -10,18 +11,25 @@ import (
 	"sync"
 )
 
-// v4 服务器 对 clientfd 的多个 msg 读写分离 并发处理
+// 对应 client 连接
 type clientfd struct {
-	conn net.Conn
+	conn *net.TCPConn
 	read chan api.GMessage
 	pack chan api.GMessage
 	send chan []byte
 	exit chan struct{}
 }
 
-func Clientfd(conn *net.TCPConn) api.GConnfd {
-	chanCap := utils.GlobalConfig.ChanCap
+// 消息打包拆包句柄
+var dp api.GDataPack = msg.DataPack()
 
+// channel 容量
+var chanCap uint8 = utils.GlobalConfig.ChanCap
+
+// 处理 msg router 方便测试替换
+var HandleMsgRouter func(api.GMessage) api.GMessage = router.GRouter.HandlerTagMsg
+
+func Clientfd(conn *net.TCPConn) api.GConnfd {
 	// 描述符实例对象
 	fd := &clientfd{
 		conn: conn,
@@ -34,10 +42,15 @@ func Clientfd(conn *net.TCPConn) api.GConnfd {
 	return fd
 }
 
+// 处理 Clientfd
+func HandleClientfd(conn *net.TCPConn) {
+	fd := Clientfd(conn)
+	fd.Closefd()
+}
+
 // 接收消息
 func (fd *clientfd) ReadMsg() {
 	defer close(fd.read) // 关闭 fd.handleMsg 协程
-	dp := DataPack()
 	for {
 		readMsg, err := dp.Unpack(fd.conn)
 		if err != nil {
@@ -47,7 +60,7 @@ func (fd *clientfd) ReadMsg() {
 				log.Println("ERROR: Unpack err", err)
 			}
 			fd.exit <- struct{}{}
-			return
+			break
 		}
 		fd.read <- readMsg
 	}
@@ -63,7 +76,8 @@ func (fd *clientfd) HandleMsg() {
 		go func(msg api.GMessage) {
 			defer wg.Done()
 
-			sendMsg := router.GRouter.HandlerTagMsg(msg)
+			sendMsg := HandleMsgRouter(msg)
+
 			if sendMsg == nil {
 				log.Println("ERROR: HandlerTagMsg(msg) is nil")
 			} else {
@@ -79,7 +93,6 @@ func (fd *clientfd) PackMsg() {
 	defer close(fd.send) // 关闭 fd.sendMsg 协程
 
 	var wg sync.WaitGroup
-	dp := DataPack()
 	for resp := range fd.pack {
 		wg.Add(1)
 		go func(resp api.GMessage) {
@@ -95,7 +108,7 @@ func (fd *clientfd) PackMsg() {
 	wg.Wait() // 防止 fd.send 关闭后 还向它发送
 }
 
-// 发送 msg
+// 发送消息
 func (fd *clientfd) SendMsg() {
 	for sendData := range fd.send {
 		_, err := fd.conn.Write(sendData)
@@ -106,13 +119,26 @@ func (fd *clientfd) SendMsg() {
 		}
 	}
 
-	// 消耗掉未发送的 msg
+	// 因异常跳出上面 forrange 消耗掉未发送的 msg
 	for range fd.send {
 	}
 }
 
 // 连接关闭
 func (fd *clientfd) Closefd() {
+
+	// 读 msg
+	go fd.ReadMsg()
+
+	// 处理 msg
+	go fd.HandleMsg()
+
+	// 打包 msg
+	go fd.PackMsg()
+
+	// 发送 msg
+	go fd.SendMsg()
+
 	// 只执行一次
 	select {
 	case <-fd.exit:

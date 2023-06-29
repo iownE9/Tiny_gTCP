@@ -1,11 +1,10 @@
-package router_test
+package router
 
 // 避免 包 循环导入
 
 import (
 	"gTCP/api"
-	"gTCP/bean"
-	"gTCP/router"
+	"gTCP/msg"
 	"sync"
 	"testing"
 )
@@ -21,18 +20,18 @@ func f03(msg api.GMessage) api.GMessage {
 }
 
 var msgs = []api.GMessage{
-	bean.NewMessage(1, []byte("hello gTCP v1")),
-	bean.NewMessage(2, []byte("hello gTCP v2")),
-	bean.NewMessage(3, []byte("hello gTCP v3")),
+	msg.NewMessage(1, []byte("hello gTCP v1")),
+	msg.NewMessage(2, []byte("hello gTCP v2")),
+	msg.NewMessage(3, []byte("hello gTCP v3")),
 }
 
 // go test -run=TestGRouter -v -race gTCP/router
 func TestGRouter(t *testing.T) {
 
 	// 装配 handlerFunc
-	router.AddHandleFunc(1, router.HandlerFunc(f01))
-	router.AddHandleFunc(2, router.HandlerFunc(f02))
-	router.AddHandleFunc(3, router.HandlerFunc(f03))
+	AddHandleFunc(1, HandlerFunc(f01))
+	AddHandleFunc(2, HandlerFunc(f02))
+	AddHandleFunc(3, HandlerFunc(f03))
 
 	var wg sync.WaitGroup
 
@@ -53,7 +52,8 @@ func TestGRouter(t *testing.T) {
 
 func currRead(t *testing.T) {
 	for _, msg := range msgs {
-		getMsg := router.GRouter.HandlerTagMsg(msg)
+		getMsg := GRouter.HandlerTagMsg(msg)
+		
 		got := string(getMsg.GetValue())
 		tag := getMsg.GetTag()
 		want := string(msg.GetValue())

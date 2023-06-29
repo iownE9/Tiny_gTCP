@@ -1,4 +1,4 @@
-package bean
+package msg
 
 import (
 	"bytes"

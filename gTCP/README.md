@@ -65,3 +65,7 @@ ERROR: use of closed network connection
 2. gTCP/api/gConnfd -> goClosefd()
 
 规范 ERROR INFO 等日志输出
+
+## v5
+
+Tiny_gTCP 正式版

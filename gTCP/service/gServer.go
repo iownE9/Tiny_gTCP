@@ -70,6 +70,6 @@ func (s *gServer) serve(listener *net.TCPListener) {
 		}
 
 		// 处理连接
-		go func(conn *net.TCPConn) { handleClientFunc(conn) }(conn)
+		go handleClientFunc(conn)
 	}
 }

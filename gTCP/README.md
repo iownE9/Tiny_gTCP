@@ -69,3 +69,11 @@ ERROR: use of closed network connection
 ## v5
 
 Tiny_gTCP 正式版
+
+
+## v6
+
+协程池
+
+1. 复用协程上下文的 
+2. 控制协程并发数，防止耗尽内存

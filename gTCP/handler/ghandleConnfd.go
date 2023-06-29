@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net"
-	"sync"
 )
 
 // 对应 client 连接
@@ -17,7 +16,9 @@ type clientfd struct {
 	read chan api.GMessage
 	pack chan api.GMessage
 	send chan []byte
-	exit chan struct{}
+
+	exit    chan struct{}
+	restart chan struct{}
 }
 
 // 消息打包拆包句柄
@@ -36,21 +37,15 @@ func Clientfd(conn *net.TCPConn) api.GConnfd {
 		read: make(chan api.GMessage, chanCap),
 		pack: make(chan api.GMessage, chanCap),
 		send: make(chan []byte, chanCap),
-		// 容量为 >=2， 读写都有权限通知关闭 connfd
-		exit: make(chan struct{}, chanCap),
+
+		exit:    make(chan struct{}),
+		restart: make(chan struct{}),
 	}
 	return fd
 }
 
-// 处理 Clientfd
-func HandleClientfd(conn *net.TCPConn) {
-	fd := Clientfd(conn)
-	fd.Closefd()
-}
-
 // 接收消息
 func (fd *clientfd) ReadMsg() {
-	defer close(fd.read) // 关闭 fd.handleMsg 协程
 	for {
 		readMsg, err := dp.Unpack(fd.conn)
 		if err != nil {
@@ -59,8 +54,11 @@ func (fd *clientfd) ReadMsg() {
 			} else {
 				log.Println("ERROR: Unpack err", err)
 			}
-			fd.exit <- struct{}{}
-			break
+
+			fd.exit <- struct{}{} // ReadMsg 协程已暂停
+			fd.read <- nil        // 发送终止信号
+			<-fd.restart          // 等待 获取 新conn success
+			continue
 		}
 		fd.read <- readMsg
 	}
@@ -68,14 +66,14 @@ func (fd *clientfd) ReadMsg() {
 
 // 处理消息
 func (fd *clientfd) HandleMsg() {
-	defer close(fd.pack) // 关闭 fd.packMsg 协程
-
-	var wg sync.WaitGroup
 	for msg := range fd.read {
-		wg.Add(1)
-		go func(msg api.GMessage) {
-			defer wg.Done()
+		// 终止信号
+		if msg == nil {
+			fd.pack <- msg
+			continue
+		}
 
+		go func(msg api.GMessage) {
 			sendMsg := HandleMsgRouter(msg)
 
 			if sendMsg == nil {
@@ -85,18 +83,18 @@ func (fd *clientfd) HandleMsg() {
 			}
 		}(msg)
 	}
-	wg.Wait() // 防止 fd.pack 关闭后 还向它发送
 }
 
 // 打包回复
 func (fd *clientfd) PackMsg() {
-	defer close(fd.send) // 关闭 fd.sendMsg 协程
-
-	var wg sync.WaitGroup
 	for resp := range fd.pack {
-		wg.Add(1)
+		// 终止信号
+		if resp == nil {
+			fd.send <- nil
+			continue
+		}
+
 		go func(resp api.GMessage) {
-			defer wg.Done()
 			sendData, err := dp.Pack(resp)
 			if err != nil {
 				log.Println("ERROR: PackMsg() err")
@@ -105,27 +103,38 @@ func (fd *clientfd) PackMsg() {
 			}
 		}(resp)
 	}
-	wg.Wait() // 防止 fd.send 关闭后 还向它发送
 }
 
 // 发送消息
 func (fd *clientfd) SendMsg() {
 	for sendData := range fd.send {
-		_, err := fd.conn.Write(sendData)
-		if err != nil {
-			log.Println("ERROR: conn.Write err", err)
-			fd.exit <- struct{}{}
-			break
-		}
-	}
+		if sendData == nil {
+			// 写异常 晚于终止信号
+			fd.exit <- struct{}{} // SendMsg 协程已处理完 旧 fd 的数据
+			<-fd.restart          // 等待 获取 新conn success
+		} else {
 
-	// 因异常跳出上面 forrange 消耗掉未发送的 msg
-	for range fd.send {
+			_, err := fd.conn.Write(sendData) // 正常执行区域
+
+			// 写异常 早于终止信号
+			if err != nil {
+				log.Println("ERROR: conn.Write err", err)
+				//  因异常 消耗掉未发送的 msg
+				for sendData := range fd.send {
+					if sendData == nil {
+						fd.exit <- struct{}{} // SendMsg 协程已处理完 旧 fd 的数据
+						break
+					}
+				}
+				<-fd.restart // 等待 获取 新conn success
+			} // 写异常 早于终止信号
+		}
 	}
 }
 
 // 连接关闭
 func (fd *clientfd) Closefd() {
+	log.Println("正式开启 可复用 协程")
 
 	// 读 msg
 	go fd.ReadMsg()
@@ -139,11 +148,20 @@ func (fd *clientfd) Closefd() {
 	// 发送 msg
 	go fd.SendMsg()
 
-	// 只执行一次
-	select {
-	case <-fd.exit:
-		fd.conn.Close() // 关闭 clientfd
-		// close(fd.exit) // ERROR
-		// 让 容量  去存放 ReadMsg ReadMsg 中慢的一方
+	// 获取新 clientfd
+	for {
+		// 读写 都已 ok
+		_ = <-fd.exit
+		_ = <-fd.exit
+
+		fd.conn.Close() //  读写完全 关闭 clientfd
+
+		// 获取新 clientfd
+		fd.conn = <-clientfdChan
+		log.Println("协程 复用")
+
+		// 发送两个 通知 读写
+		fd.restart <- struct{}{}
+		fd.restart <- struct{}{}
 	}
 }

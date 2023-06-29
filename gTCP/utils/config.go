@@ -11,6 +11,8 @@ var GlobalConfig *globalConfig
 type globalConfig struct {
 	HeadLen   uint32 // TLV 消息封装 头长度
 	ChanCap   uint8  // channel 容量
+	GPool     uint8  // clientfd 协程池 数量
+	
 	Name      string
 	IpVersion string
 	Host      string
@@ -40,6 +42,10 @@ func (g *globalConfig) readConfig() error {
 
 func configInit() {
 	GlobalConfig = &globalConfig{
+		HeadLen:   8,
+		ChanCap:   3,
+		GPool:     6,
+
 		Name:      "gTCP",
 		IpVersion: "tcp4",
 		Host:      "localhost",

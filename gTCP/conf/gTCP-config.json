@@ -3,7 +3,8 @@
     "IpVersion":"tcp4",
     "Host":"localhost",
     "TcpPort":"8080",
-    "LogPath":"../static/log/log_v5.txt",
+    "LogPath":"../static/log/log_v6.txt",
     "HeadLen":8,
-    "ChanCap":3
+    "ChanCap":3,
+    "GPool":6
 }

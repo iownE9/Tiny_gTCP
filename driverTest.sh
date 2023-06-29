@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# v6 协程池
+
+# gTCP/service
+# 协程池整体性功能测试
+go test -v -run=TestRouterHandle gTCP/service -race -args 30
+
+# 查看日志 ERROR
+# -n：显示匹配行的行号 number
+# -c：只打印匹配的行数 count
+grep "ERROR" -n  gTCP/static/log/log_v6.txt
+grep "正式开启" -c gTCP/static/log/log_v6.txt
+grep "协程 复用" -c gTCP/static/log/log_v6.txt
+
+# ======================= #
 # v5 正式版
 
 # gTCP/service
